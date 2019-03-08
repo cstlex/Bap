@@ -16,7 +16,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        return true
+        
+        let pref = UserDefaults.standard;
+        if pref.object(forKey: "Items") == nil {
+            pref.set([], forKey: "Items");
+            pref.synchronize();
+        }
+        
+        return true;
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
