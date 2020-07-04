@@ -1,0 +1,86 @@
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: macOS-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Set up Ruby 2.6
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+      # Gpg seems to be installed on github runner
+#      - name: Install gpg
+#        run: brew install gnupg
+      # Caching npm for firebase tool takes more time than just install
+#      - uses: actions/cache@v1
+#        with:
+#          path: ~/.npm
+#          key: ${{ runner.os }}-node-PodTrackerV1
+#          restore-keys: |
+#            ${{ runner.os }}-node-
+      - name: Install firebase tools
+        run: npm install -g firebase-tools
+
+      # Runs a single command using the runners shell
+      - name: Install bundle
+        run: gem install bundler
+      - uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: Bundle Install
+        run: |
+          bundle config path vendor/bundle
+          bundle update
+      - uses: actions/cache@v1
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+      - name: Setup Cocoapod
+        run: |
+          bundle config path vendor/bundle
+          bundle exec pod install
+        shell: bash
+        
+      - name: Setup iOS Signing
+        run: ./.github/secrets/decrypt.sh
+        env:
+          IOS_PROFILE_KEY: ${{ secrets.IOS_PROFILE_KEY }}
+      - name: Run fastlane deploy
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: fastlane beta
+      - name: Commit version number change
+        run: |
+          git config --global user.name 'Minsoo Kim'
+          git config --global user.email 'cstlex@users.noreply.github.com'
+          git commit -m "Version number increase" Pod\ Tracker.xcodeproj/project.pbxproj Pod\ Tracker/Info.plist
+          git push
+      - name: Send completed headsup
+        uses: fjogeleit/http-request-action@master
+        with:
+          url: "https://headsup-dev.herokuapp.com/notify"
+          method: 'POST'
+          contentType: "application/json"
+          data: '{"name": "CstLex", "key": "WjLCCY", "message": "Github Action Deployment for PodTracker finished"}'
+
