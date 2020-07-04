@@ -6,7 +6,8 @@
 //  Copyright © 2019 Minsoo Kim. All rights reserved.
 //
 
-import UIKit
+import UIKit;
+import Firebase;
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -22,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             pref.set([], forKey: "Items");
             pref.synchronize();
         }
+        FirebaseApp.configure();
         
         return true;
     }
