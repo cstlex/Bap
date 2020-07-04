@@ -24,19 +24,8 @@ jobs:
         uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6
-      # Gpg seems to be installed on github runner
-#      - name: Install gpg
-#        run: brew install gnupg
-      # Caching npm for firebase tool takes more time than just install
-#      - uses: actions/cache@v1
-#        with:
-#          path: ~/.npm
-#          key: ${{ runner.os }}-node-PodTrackerV1
-#          restore-keys: |
-#            ${{ runner.os }}-node-
       - name: Install firebase tools
         run: npm install -g firebase-tools
-
       # Runs a single command using the runners shell
       - name: Install bundle
         run: gem install bundler
@@ -74,7 +63,7 @@ jobs:
         run: |
           git config --global user.name 'Minsoo Kim'
           git config --global user.email 'cstlex@users.noreply.github.com'
-          git commit -m "Version number increase" Pod\ Tracker.xcodeproj/project.pbxproj Pod\ Tracker/Info.plist
+          git commit -m "Version number increase" Bap.xcodeproj/project.pbxproj Bap/Info.plist
           git push
       - name: Send completed headsup
         uses: fjogeleit/http-request-action@master
@@ -82,5 +71,4 @@ jobs:
           url: "https://headsup-dev.herokuapp.com/notify"
           method: 'POST'
           contentType: "application/json"
-          data: '{"name": "CstLex", "key": "WjLCCY", "message": "Github Action Deployment for PodTracker finished"}'
-
+          data: '{"name": "CstLex", "key": "WjLCCY", "message": "Github Action Deployment for Bap finished"}'

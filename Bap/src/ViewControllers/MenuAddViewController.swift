@@ -16,6 +16,8 @@ class MenuAddViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad();
+        
+        menuNameField.becomeFirstResponder();
     }
 
     /*
