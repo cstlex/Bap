@@ -30,9 +30,24 @@ class MenuChooseViewController: UIViewController {
                 present(controller, animated: true, completion: nil);
                 return;
             }
-            let index = Int.random(in: 0..<foods.count);
-            let food = foods[index];
-            menuLabel.text = food["name"] as? String ?? "";
+            
+            showAnimation(foods: foods);
+        }
+    }
+    
+    func showAnimation(foods: [[String:Any]], currentCount: Int = 1) {
+        let index = Int.random(in: 0..<foods.count);
+        let food = foods[index];
+        menuLabel.text = food["name"] as? String ?? "";
+        if currentCount == 25 {
+            menuLabel.alpha = 0.0;
+            UIView.animate(withDuration: 2.0) {
+                self.menuLabel.alpha = 1.0;
+            }
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                self.showAnimation(foods: foods, currentCount: currentCount + 1);
+            }
         }
     }
 }
