@@ -16,10 +16,15 @@ struct FoodListView: View {
         foods = Food.foods;
     }
     
+    func deleteFood(indexSet: IndexSet) {
+        indexSet.forEach { foods.remove(at: $0) }
+        foods.save();
+    }
+    
     var body: some View {
         return Group {
             List {
-                ForEach(foods, id: \.id) { FoodItemView(food: $0) }
+                ForEach(foods, id: \.id) { FoodItemView(food: $0) }.onDelete(perform: deleteFood(indexSet:))
                 Button(action: {
                     self.isShowingAdd = true;
                 }) {
